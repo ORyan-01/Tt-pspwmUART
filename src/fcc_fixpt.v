@@ -1,5 +1,24 @@
 `default_nettype wire  // codigo generado por HDL Coder: usa nets implicitas
 
+// ---------------------------------------------------------------------------
+// PARCHE PARA TINY TAPEOUT  (no cambia el comportamiento)
+//
+// HDL Coder reutilizo la MISMA variable de bucle en dos procesos con reloj:
+//   xXik_reg_t_0_0  ->  xXik_reg_process   y  xXik_reg_1_process
+//   xUik_reg_t_0_0  ->  xUik_reg_process   y  xUik_reg_1_process
+// Al ser `reg` de modulo asignados dentro de un always @(posedge ...), Yosys
+// infiere un biestable por proceso y acaba con DOS drivers sobre la misma red:
+//   "multiple conflicting drivers for fcc_fixpt.\xUik_reg_t_0_0 [31:0]"
+// Son 32 bits x 2 variables = los 64 errores que abortaron el GDS.
+//
+// Arreglo: los cuatro bucles tienen limites constantes 0..1, asi que se
+// desenrollan a mano y las dos variables desaparecen.  Es exactamente lo que
+// hacen el simulador y el sintetizador al desenrollar: misma logica, mismos
+// biestables de datos, mismo resultado bit a bit.  La variable de bucle no se
+// lee nunca fuera del bucle y se reinicia a 0 en cada ejecucion, asi que el
+// valor que retenia era estado muerto.
+// ---------------------------------------------------------------------------
+
 // -------------------------------------------------------------
 // 
 // File Name: C:\Users\frank\Matlab\PRUEBA_FLOAT_TO_FIXED\codegen\fcc\hdlsrc\fcc_fixpt.v
@@ -113,7 +132,6 @@ module fcc_fixpt
   wire signed [22:0] p47y1_sub_cast_1;  // sfix23_En14
   wire signed [22:0] p47y1_sub_temp;  // sfix23_En14
   wire [6:0] D2_aux;  // ufix7
-  reg signed [31:0] xXik_reg_t_0_0;  // int32
   reg signed [31:0] p37xXik_t_0;  // int32
   reg signed [31:0] p35tmp_t_0;  // int32
   reg signed [21:0] p35tmp_cast;  // sfix22_En14
@@ -124,7 +142,6 @@ module fcc_fixpt
   reg signed [32:0] p35tmp_add_cast_1;  // sfix33_En28
   reg signed [34:0] p35tmp_add_cast_2;  // sfix35_En28
   reg signed [34:0] p35tmp_add_temp;  // sfix35_En28
-  reg signed [31:0] xUik_reg_t_0_0;  // int32
   reg signed [31:0] p36xUik_t_0;  // int32
   reg signed [31:0] p33xUik_t_0;  // int32
   reg [17:0] p33xUik_sub_cast;  // ufix18_En14
@@ -209,9 +226,10 @@ module fcc_fixpt
       end
       else begin
         if (enb) begin
-          for(xXik_reg_t_0_0 = 32'sd0; xXik_reg_t_0_0 <= 32'sd1; xXik_reg_t_0_0 = xXik_reg_t_0_0 + 32'sd1) begin
-            xXik[xXik_reg_t_0_0] <= tmp_5[xXik_reg_t_0_0];
-          end
+          // Bucle desenrollado a mano (limites constantes 0..1).  Identico al
+          // original; elimina la variable de bucle compartida entre procesos.
+          xXik[0] <= tmp_5[0];
+          xXik[1] <= tmp_5[1];
         end
       end
     end
@@ -257,9 +275,9 @@ module fcc_fixpt
       end
       else begin
         if (enb) begin
-          for(xUik_reg_t_0_0 = 32'sd0; xUik_reg_t_0_0 <= 32'sd1; xUik_reg_t_0_0 = xUik_reg_t_0_0 + 32'sd1) begin
-            xUik_2[xUik_reg_t_0_0] <= tmp_6[xUik_reg_t_0_0];
-          end
+          // Bucle desenrollado a mano (limites constantes 0..1).
+          xUik_2[0] <= tmp_6[0];
+          xUik_2[1] <= tmp_6[1];
         end
       end
     end
@@ -371,9 +389,9 @@ module fcc_fixpt
       end
       else begin
         if (enb) begin
-          for(xXik_reg_t_0_0 = 32'sd0; xXik_reg_t_0_0 <= 32'sd1; xXik_reg_t_0_0 = xXik_reg_t_0_0 + 32'sd1) begin
-            xXik_2[xXik_reg_t_0_0] <= tmp_12[xXik_reg_t_0_0];
-          end
+          // Bucle desenrollado a mano (limites constantes 0..1).
+          xXik_2[0] <= tmp_12[0];
+          xXik_2[1] <= tmp_12[1];
         end
       end
     end
@@ -417,9 +435,9 @@ module fcc_fixpt
       end
       else begin
         if (enb) begin
-          for(xUik_reg_t_0_0 = 32'sd0; xUik_reg_t_0_0 <= 32'sd1; xUik_reg_t_0_0 = xUik_reg_t_0_0 + 32'sd1) begin
-            xUik_5[xUik_reg_t_0_0] <= tmp_13[xUik_reg_t_0_0];
-          end
+          // Bucle desenrollado a mano (limites constantes 0..1).
+          xUik_5[0] <= tmp_13[0];
+          xUik_5[1] <= tmp_13[1];
         end
       end
     end
