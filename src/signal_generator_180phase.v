@@ -1,6 +1,5 @@
 `default_nettype none
 
-`timescale 1ns / 1ps
 
 module signal_generator_180phase #(
   parameter integer Width = 7

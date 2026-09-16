@@ -1,6 +1,5 @@
 `default_nettype none
 
-`timescale 1ns / 1ps
 
 module ps_pwm (
   input wire       clk_i,          // Main System Clock

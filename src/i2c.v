@@ -5,17 +5,17 @@ module i2c (
     input wire rst_ni,
 
     input wire sda_i,
-    output reg sda_o = 1,
-    output reg is_sending_o = 0,
+    output reg sda_o,          // reset: 1
+    output reg is_sending_o,   // reset: 0
 
-    output reg scl_o = 1,
+    output reg scl_o,          // reset: 1
 
     input wire [1:0] instruction_i, // 00 = start, 01 = stop, 10 = read + ACK, 11 = write + ACK
 
     input wire enable_i,
 
     input wire [7:0] byte_to_send_i,
-    output reg [7:0] byte_received_o = 0,
+    output reg [7:0] byte_received_o,  // reset: 0
 
     output reg complete_o
 );
@@ -29,10 +29,10 @@ module i2c (
     localparam STATE_SEND_ACK = 6;
     localparam STATE_RCV_ACK = 7;
 
-    reg [6:0] clockDivider = 0;
+    reg [6:0] clockDivider;    // reset: 0
 
-    reg [2:0] state = STATE_IDLE;
-    reg [2:0] bitToSend = 0;
+    reg [2:0] state;           // reset: STATE_IDLE
+    reg [2:0] bitToSend;       // reset: 0
 
     always @(posedge clk_i or negedge rst_ni) begin
         if (!rst_ni) begin

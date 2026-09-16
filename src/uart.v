@@ -28,13 +28,13 @@ module uart
     localparam RX_STATE_READ = 3;
     localparam RX_STATE_STOP_BIT = 5;
 
-    reg [3:0] rxState = 0;
-    reg [12:0] rxCounter = 0;
-    reg [2:0] rxBitNumber = 0;
-    reg [7:0] dataIn = 0;
-    reg byteReady = 0;
+    reg [3:0] rxState;        // reset: RX_STATE_IDLE
+    reg [12:0] rxCounter;     // reset: 0
+    reg [2:0] rxBitNumber;    // reset: 0
+    reg [7:0] dataIn;         // reset: 0
+    reg byteReady;            // reset: 0
 
-    reg [15:0] valueCounter = 0;
+    reg [15:0] valueCounter;  // reset: 0
     assign counter_o = valueCounter;
 
     always @(posedge clk_i or negedge rst_ni) begin

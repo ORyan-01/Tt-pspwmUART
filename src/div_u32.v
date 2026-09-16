@@ -76,6 +76,10 @@ module div_u32 (
     end
   end
 
+  // quot_q[31] se desplaza fuera al formar quot_o, y rem_sub[16] es el acarreo
+  // de la resta, que nunca se guarda.  Solo para el linter.
+  wire _unused_div = &{quot_q[31], rem_sub[16], 1'b0};
+
 endmodule
 
 `default_nettype wire

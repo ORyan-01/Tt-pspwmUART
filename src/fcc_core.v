@@ -21,7 +21,6 @@
 // ---------------------------------------------------------------------------
 
 `default_nettype none
-`timescale 1ns / 1ps
 
 module fcc_core (
     // Clock and Reset
@@ -242,6 +241,10 @@ module fcc_core (
   // ---------------------------------------------------------------------------
   // Algoritmo de control
   // ---------------------------------------------------------------------------
+  wire               fcc_ce_out;   // salidas de fcc_fixpt que el diseno
+  wire [20:0]        fcc_ui;       // original nunca conectaba
+  wire signed [10:0] fcc_uv;
+
   fcc_fixpt u_controller (
       .clk        (clk_i),
       .reset      (~rst_ni),
@@ -251,7 +254,10 @@ module fcc_core (
       .Vfcref     (V_FC_REF),
       .Vfc        (adc_voltage_fc_o),
       .D1         (duty_d1_o),
-      .D2         (duty_d2_o)
+      .D2         (duty_d2_o),
+      .ce_out     (fcc_ce_out),
+      .ui         (fcc_ui),
+      .uv         (fcc_uv)
   );
 
   // ---------------------------------------------------------------------------
@@ -338,8 +344,8 @@ module fcc_core (
       // 1. Acumulacion de muestras
       if (adc1_done_o && adc2_done_o) begin
         sample_count <= sample_count + 1;
-        sum_fc       <= sum_fc  + adc_voltage_fc_o;
-        sum_out      <= sum_out + adc_voltage_out_o;
+        sum_fc       <= sum_fc  + {16'd0, adc_voltage_fc_o};
+        sum_out      <= sum_out + {16'd0, adc_voltage_out_o};
       end
 
       // 2. Resultado de la division (mismo valor que (sum/count)>>4)
@@ -375,11 +381,14 @@ module fcc_core (
 
   wire [7:0] thousands_counter, hundreds_counter, tens_counter, units_counter;
 
+  // Decenas de millar de los toDec: el diseno original no las pinta.
+  wire [7:0] freq_tth_unused, fc_tth_unused, out_tth_unused;
+
   toDec dec3 (
       .clk           (clk_i),
       .rst_ni        (rst_ni),
       .value         ({4'd0, freq_display_hold[11:0]}),
-      .ten_thousands (),
+      .ten_thousands (freq_tth_unused),
       .thousands     (thousands_counter),
       .hundreds      (hundreds_counter),
       .tens          (tens_counter),
@@ -398,7 +407,7 @@ module fcc_core (
       .clk           (clk_i),
       .rst_ni        (rst_ni),
       .value         ({4'd0, avg_fc_disp}),
-      .ten_thousands (),
+      .ten_thousands (fc_tth_unused),
       .thousands     (voltage_fc_thousands_o),
       .hundreds      (voltage_fc_hundreds_o),
       .tens          (voltage_fc_tens_o),
@@ -409,7 +418,7 @@ module fcc_core (
       .clk           (clk_i),
       .rst_ni        (rst_ni),
       .value         ({4'd0, avg_out_disp}),
-      .ten_thousands (),
+      .ten_thousands (out_tth_unused),
       .thousands     (voltage_out_thousands_o),
       .hundreds      (voltage_out_hundreds_o),
       .tens          (voltage_out_tens_o),
@@ -584,7 +593,11 @@ module fcc_core (
   assign pwm_o[7]   = 1'b0;
 
   // thousands_counter y d1_tth existen en el original pero no se pintan
-  wire _unused_core = &{thousands_counter, d1_tth, v_calc_temp[15:0], 1'b0};
+  wire _unused_core = &{1'b0,
+      thousands_counter, d1_tth, v_calc_temp[15:0],
+      freq_tth_unused, fc_tth_unused, out_tth_unused,
+      freq_display_hold[15:12], div_quot[31:16], div_quot[3:0],
+      fcc_ce_out, fcc_ui, fcc_uv};
 
 endmodule
 

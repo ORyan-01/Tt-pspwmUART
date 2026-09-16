@@ -1,20 +1,20 @@
 `default_nettype none
 
 module adc #(
-    parameter address = 7'd0,
+    parameter [6:0] address = 7'd0,
     parameter [2:0] MUX_CONFIG = 3'd000
 ) (
     input wire clk_i,
     input wire rst_ni,
 
-    output reg [15:0] data_o = 0,
-    output reg data_ready_o = 1,
+    output reg [15:0] data_o,        // reset: 0
+    output reg data_ready_o,        // reset: 1
     input wire enable_i,
 
     // I2C Interface
-    output reg [1:0] i2c_instruction_o = 0,
-    output reg i2c_enable_o = 0,
-    output reg [7:0] i2c_byte_to_send_o = 0,
+    output reg [1:0] i2c_instruction_o,   // reset: 0
+    output reg i2c_enable_o,              // reset: 0
+    output reg [7:0] i2c_byte_to_send_o,  // reset: 0
     input wire [7:0] i2c_byte_received_i,
     input wire i2c_complete_i
 );
@@ -34,9 +34,9 @@ module adc #(
     localparam CONVERSION_REGISTER = 8'b00000000;
 
     // Simplified Tasks
-    localparam TASK_SETUP       = 0;
-    localparam TASK_CHANGE_REG  = 2; // Keep index 2 to match your flow
-    localparam TASK_READ_VALUE  = 3; // Keep index 3
+    localparam [1:0] TASK_SETUP       = 2'd0;
+    localparam [1:0] TASK_CHANGE_REG  = 2'd2; // Keep index 2 to match your flow
+    localparam [1:0] TASK_READ_VALUE  = 2'd3; // Keep index 3
 
     localparam INST_START_TX  = 0;
     localparam INST_STOP_TX   = 1;
@@ -49,13 +49,13 @@ module adc #(
     localparam STATE_INC_SUB_TASK = 3;
     localparam STATE_DONE         = 4;
 
-    reg [1:0] taskIndex = 0;
-    reg [2:0] subTaskIndex = 0;
-    reg [4:0] state = STATE_IDLE;
-    reg processStarted = 0;
+    reg [1:0] taskIndex;       // reset: 0
+    reg [2:0] subTaskIndex;    // reset: 0
+    reg [4:0] state;           // reset: STATE_IDLE
+    reg processStarted;        // reset: 0
 
     // NEW: Flag to remember if we have configured the ADC yet
-    reg config_done = 0;
+    reg config_done;           // reset: 0
 
     always @(posedge clk_i or negedge rst_ni) begin
         if (!rst_ni) begin

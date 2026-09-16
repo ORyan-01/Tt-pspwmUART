@@ -59,7 +59,6 @@
 // 
 // -------------------------------------------------------------
 
-`timescale 1 ns / 1 ns
 
 module fcc_fixpt
           (clk,
@@ -500,7 +499,7 @@ module fcc_fixpt
   assign p45y1_add_cast = {2'b0, ui_aux};
   assign p45y1_add_cast_1 = {{12{tmp_14[10]}}, tmp_14};
   assign p45y1_add_temp = p45y1_add_cast + p45y1_add_cast_1;
-  assign y1 = p45y1_add_temp[22:14] + $signed({1'b0, p45y1_add_temp[22] & (|p45y1_add_temp[13:0])});
+  assign y1 = p45y1_add_temp[22:14] + $signed({8'b0, p45y1_add_temp[22] & (|p45y1_add_temp[13:0])});
 
 
 
@@ -511,7 +510,7 @@ module fcc_fixpt
   assign p47y1_sub_cast = {2'b0, ui_aux};
   assign p47y1_sub_cast_1 = {{12{tmp_14[10]}}, tmp_14};
   assign p47y1_sub_temp = p47y1_sub_cast - p47y1_sub_cast_1;
-  assign y1_1 = p47y1_sub_temp[22:14] + $signed({1'b0, p47y1_sub_temp[22] & (|p47y1_sub_temp[13:0])});
+  assign y1_1 = p47y1_sub_temp[22:14] + $signed({8'b0, p47y1_sub_temp[22] & (|p47y1_sub_temp[13:0])});
 
 
 
@@ -528,5 +527,19 @@ module fcc_fixpt
   assign ui = ui_aux;
 
   assign uv = tmp_14;
+
+  // ---------------------------------------------------------------------------
+  // Solo para el linter: bits que el codigo generado por HDL Coder calcula
+  // pero luego descarta al hacer el recorte de punto fijo.  No genera logica.
+  // ---------------------------------------------------------------------------
+  wire _unused_fixpt = &{1'b0,
+      tmp_10[20:11], y1[8:7], y1_1[8:7],
+      p35tmp_mul_temp[34], p35tmp_mul_temp_0[33],
+      p35tmp_add_temp[34], p35tmp_add_temp[13:0],
+      p33xUik_sub_cast[17:16], p33xUik_sub_cast_2[17:16],
+      p33xUik_mul_temp[37], p33xUik_cast[36:35], p33xUik_cast[13:0],
+      p17tmp_mul_temp_0[20], p17tmp_add_temp[20], p17tmp_add_temp[13:0],
+      p15xUik_sub_cast[17:16], p15xUik_sub_cast_2[17:16],
+      p15xUik_mul_temp[38], p15xUik_cast[37:25], p15xUik_cast[13:0]};
 
 endmodule  // fcc_fixpt

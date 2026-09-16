@@ -38,6 +38,12 @@ module screen #(
 
   localparam SETUP_INSTRUCTIONS = 23;
 
+  // Mismos valores (10M, 20M, 30M), pero ya a 33 bits para comparar con
+  // counter sin extension implicita.
+  localparam [32:0] WAIT_1X = {1'b0, STARTUP_WAIT};
+  localparam [32:0] WAIT_2X = WAIT_1X + WAIT_1X;
+  localparam [32:0] WAIT_3X = WAIT_2X + WAIT_1X;
+
   reg [32:0] counter;
   reg [2:0]  state;
 
@@ -115,11 +121,11 @@ module screen #(
       case (state)
         STATE_INIT_POWER: begin
           counter <= counter + 1;
-          if (counter < STARTUP_WAIT)
+          if (counter < WAIT_1X)
             reset <= 1;
-          else if (counter < STARTUP_WAIT * 2)
+          else if (counter < WAIT_2X)
             reset <= 0;
-          else if (counter < STARTUP_WAIT * 3)
+          else if (counter < WAIT_3X)
             reset <= 1;
           else begin
             state   <= STATE_LOAD_INIT_CMD;
@@ -137,7 +143,7 @@ module screen #(
         STATE_SEND: begin
           if (counter == 33'd0) begin
             sclk    <= 0;
-            sdin    <= dataToSend[bitNumber];
+            sdin    <= dataToSend[bitNumber[2:0]];  // bitNumber solo vale 0..7
             counter <= 33'd1;
           end
           else begin
