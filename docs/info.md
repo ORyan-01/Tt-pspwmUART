@@ -2,8 +2,7 @@
 
 Controlador digital completo para un **convertidor Flying Capacitor de 3 niveles (3LFCC)**.
 Es el port a ASIC del diseno FPGA de Nicolas Villegas para la Tang Nano 20K
-(`github.com/nic0villegasc/LushayLabs-TangNano20K`, carpeta `3LFCC`), sin perder
-ninguna funcion.
+(`github.com/nic0villegasc/LushayLabs-TangNano20K`, carpeta `3LFCC`)
 
 El chip contiene cinco bloques:
 
