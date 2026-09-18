@@ -15,7 +15,7 @@ El chip contiene cinco bloques:
 
 2. **Lazo de control**: `fcc_fixpt`, un PI en punto fijo generado con MATLAB HDL
    Coder, que entrega dos ciclos de trabajo de 7 bits (D1, D2). Se dispara con un
-   `timer_control` que espera al fin de conversion de **ambos** ADC.
+   `timer_control` que espera al fin de conversion de ambos ADC.
 
 3. **Modulador PS-PWM**: dos portadoras triangulares de 7 bits desfasadas 180 grados,
    dos comparadores y cuatro generadores de tiempo muerto. El parametro `DeadTime`
@@ -37,7 +37,7 @@ El chip contiene cinco bloques:
 Tiny Tapeout ofrece 8 salidas dedicadas mas 8 bidireccionales = 16 pines de salida,
 y el diseno original necesitaba 15 salidas + 2 bidireccionales = 17. Faltaba uno.
 
-La solucion: **los dos buses I2C comparten la linea SCL**. Los dos maestros I2C son
+La solucion: los dos buses I2C comparten la linea SCL. Los dos maestros I2C son
 maquinas de estado identicas, con el mismo reloj y el mismo reset, y se habilitan en
 el mismo ciclo; dentro de `i2c.v` ninguna transicion depende de SDA, solo del divisor
 de reloj interno. Por tanto `scl_1_o` y `scl_2_o` son bit a bit identicos en todo
@@ -55,9 +55,9 @@ del bitstream.
 
 Alimenta el chip a 3.3 V y dale un reloj de **27 MHz**.
 
-1. Pon `ui[1] = 0` (SCL push-pull, como la FPGA) o `ui[1] = 1` si prefieres
+1. Pon `ui[1] = 0` (SCL push-pull, como la FPGA) o `ui[1] = 1` si se prefiere
    open-drain estricto con pull-ups.
-2. Deja `ui[0]` (UART RX) en alto si no vas a usar la consola.
+2. Deja `ui[0]` (UART RX) en alto si no van a usar la consola.
 3. Suelta el reset. **Ojo con lo que se ve al arrancar:** mientras la referencia
    valga 0, `uo[2]` y `uo[3]` conmutan a la frecuencia de portadora
    (27 MHz / 254 ~ 106 kHz) pero `uo[0]` y `uo[1]` se quedan en alto, que es el
