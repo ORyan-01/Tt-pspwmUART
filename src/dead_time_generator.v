@@ -1,5 +1,4 @@
-`default_nettype none
-
+`timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Company: POWERLAB, DEPARTAMENTO DE ELECTRONICA, UTFSM
 // Engineer: GONZALO CARRASCO REYES
@@ -32,10 +31,10 @@
 module dead_time_generator #(
   parameter integer DeadTimeWidth = 5
 ) (
-  input wire                     clk_i,            // Reloj principal
-  input wire                     rst_ni,           // Reset asincrono activo bajo
-  input wire [DeadTimeWidth-1:0] dt_i,             // Configuración de tiempos muertos
-  input wire                     signal_i,         // Señal a retardar (gi)
+  input  wire                     clk_i,            // Reloj principal
+  input  wire                     rst_ni,           // ANADIDO: reset asincrono activo bajo
+  input  wire [DeadTimeWidth-1:0] dt_i,             // Configuración de tiempos muertos
+  input  wire                     signal_i,         // Señal a retardar (gi)
   output reg                      signal_delayed_o  // Señal retardada (go)
 );
 
@@ -51,7 +50,7 @@ module dead_time_generator #(
   // Si la entrada cae a 0, el retardo se reinicia y la salida cae inmediatamente.
   always @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      // Estado de arranque de la FPGA (registros a 0)
+      // ANADIDO: mismo estado que tenia la FPGA al configurarse
       counter_q        <= {DeadTimeWidth{1'b0}};
       signal_delayed_o <= 1'b0;
     end else if (signal_i == 1'b0) begin
@@ -73,5 +72,3 @@ module dead_time_generator #(
   end
 
 endmodule
-
-`default_nettype wire

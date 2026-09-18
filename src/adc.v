@@ -1,22 +1,24 @@
-`default_nettype none
+// MODIFICADO: se elimina aqui la directiva de estrictez de compilacion.
+// No afecta a ninguna logica, y se filtraba a los ficheros compilados
+// despues (screen.v, toDec.v, fcc_fixpt.v), que no la declaran.
 
 module adc #(
-    parameter [6:0] address = 7'd0,
+    parameter address = 7'd0,
     parameter [2:0] MUX_CONFIG = 3'd000
 ) (
-    input wire clk_i,
-    input wire rst_ni,
+    input clk_i,
+    input rst_ni,
 
-    output reg [15:0] data_o,        // reset: 0
-    output reg data_ready_o,        // reset: 1
-    input wire enable_i,
+    output reg [15:0] data_o = 0,
+    output reg data_ready_o = 1,
+    input enable_i,
 
     // I2C Interface
-    output reg [1:0] i2c_instruction_o,   // reset: 0
-    output reg i2c_enable_o,              // reset: 0
-    output reg [7:0] i2c_byte_to_send_o,  // reset: 0
-    input wire [7:0] i2c_byte_received_i,
-    input wire i2c_complete_i
+    output reg [1:0] i2c_instruction_o = 0,
+    output reg i2c_enable_o = 0,
+    output reg [7:0] i2c_byte_to_send_o = 0,
+    input [7:0] i2c_byte_received_i,
+    input i2c_complete_i
 );
 
     // --- CONFIGURATION ---
@@ -34,9 +36,9 @@ module adc #(
     localparam CONVERSION_REGISTER = 8'b00000000;
 
     // Simplified Tasks
-    localparam [1:0] TASK_SETUP       = 2'd0;
-    localparam [1:0] TASK_CHANGE_REG  = 2'd2; // Keep index 2 to match your flow
-    localparam [1:0] TASK_READ_VALUE  = 2'd3; // Keep index 3
+    localparam TASK_SETUP       = 0;
+    localparam TASK_CHANGE_REG  = 2; // Keep index 2 to match your flow
+    localparam TASK_READ_VALUE  = 3; // Keep index 3
 
     localparam INST_START_TX  = 0;
     localparam INST_STOP_TX   = 1;
@@ -49,13 +51,13 @@ module adc #(
     localparam STATE_INC_SUB_TASK = 3;
     localparam STATE_DONE         = 4;
 
-    reg [1:0] taskIndex;       // reset: 0
-    reg [2:0] subTaskIndex;    // reset: 0
-    reg [4:0] state;           // reset: STATE_IDLE
-    reg processStarted;        // reset: 0
+    reg [1:0] taskIndex = 0;
+    reg [2:0] subTaskIndex = 0;
+    reg [4:0] state = STATE_IDLE;
+    reg processStarted = 0;
 
     // NEW: Flag to remember if we have configured the ADC yet
-    reg config_done;           // reset: 0
+    reg config_done = 0;
 
     always @(posedge clk_i or negedge rst_ni) begin
         if (!rst_ni) begin
@@ -66,11 +68,6 @@ module adc #(
             processStarted <= 0;
             i2c_enable_o <= 0;
             config_done <= 0;
-            // Anadido: mismos valores que los inicializadores del original,
-            // para no arrancar con X en silicio / gate-level sim.
-            data_o <= 16'd0;
-            i2c_instruction_o <= 2'd0;
-            i2c_byte_to_send_o <= 8'd0;
         end else begin
           case (state)
               // -----------------------------------------------------------------
@@ -226,5 +223,3 @@ module adc #(
         end
     end
 endmodule
-
-`default_nettype wire

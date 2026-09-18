@@ -1,13 +1,12 @@
-`default_nettype none
-
+`timescale 1ns / 1ps
 
 module timer_control #(
   parameter counter_width = 16,
   parameter [counter_width-1:0] CountMax = 750 // 7.5us @ 100MHz (or 6us @ 125MHz)
 ) (
-  input wire clk_i,      // System Clock
-  input wire rst_ni,     // Active-Low Asynchronous Reset
-  input wire eoc_i,      // End of Conversion (EOC) pulse
+  input  wire clk_i,      // System Clock
+  input  wire rst_ni,     // Active-Low Asynchronous Reset
+  input  wire eoc_i,      // End of Conversion (EOC) pulse
   output reg  trigger_o   // Trigger pulse output
 );
 
@@ -47,5 +46,3 @@ module timer_control #(
   end
 
 endmodule
-
-`default_nettype wire

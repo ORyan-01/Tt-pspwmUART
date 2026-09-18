@@ -1,23 +1,16 @@
-// ---------------------------------------------------------------------------
-// uart.v  -  receptor UART 115200 8N1 (antes 3LFCC/src/uart.v)
-//
-// Unico cambio: se anade rst_ni.  En FPGA los `reg x = 0` se cargan con el
-// bitstream; en ASIC arrancan indeterminados y la FSM podria quedarse colgada
-// o cargar un valueCounter basura en el lazo de control.  Los valores de
-// reset son exactamente los inicializadores del codigo original.
-// ---------------------------------------------------------------------------
-
-`default_nettype none
+// MODIFICADO: se elimina aqui la directiva de estrictez de compilacion.
+// No afecta a ninguna logica, y se filtraba a los ficheros compilados
+// despues (screen.v, toDec.v, fcc_fixpt.v), que no la declaran.
 
 module uart
 #(
     parameter DELAY_FRAMES = 234 // 27,000,000 (27Mhz) / 115200 Baud rate
 )
 (
-    input wire clk_i,
-    input wire rst_ni,
-    input wire rx_i,
-    output wire [15:0] counter_o
+    input clk_i,
+    input rst_ni,          // ANADIDO: en ASIC los registros arrancan indeterminados
+    input rx_i,
+    output [15:0] counter_o
 );
     localparam HALF_DELAY_WAIT = (DELAY_FRAMES / 2);
 
@@ -28,24 +21,24 @@ module uart
     localparam RX_STATE_READ = 3;
     localparam RX_STATE_STOP_BIT = 5;
 
-    reg [3:0] rxState;        // reset: RX_STATE_IDLE
-    reg [12:0] rxCounter;     // reset: 0
-    reg [2:0] rxBitNumber;    // reset: 0
-    reg [7:0] dataIn;         // reset: 0
-    reg byteReady;            // reset: 0
+    reg [3:0] rxState = 0;
+    reg [12:0] rxCounter = 0;
+    reg [2:0] rxBitNumber = 0;
+    reg [7:0] dataIn = 0;
+    reg byteReady = 0;
 
-    reg [15:0] valueCounter;  // reset: 0
+    reg [15:0] valueCounter = 0;
     assign counter_o = valueCounter;
 
     always @(posedge clk_i or negedge rst_ni) begin
       if (!rst_ni) begin
-        // Mismos valores que los inicializadores del codigo original
+        // ANADIDO: mismos valores que los inicializadores de la declaracion
         rxState      <= RX_STATE_IDLE;
-        rxCounter    <= 13'd0;
-        rxBitNumber  <= 3'd0;
-        dataIn       <= 8'd0;
-        byteReady    <= 1'b0;
-        valueCounter <= 16'd0;
+        rxCounter    <= 0;
+        rxBitNumber  <= 0;
+        dataIn       <= 0;
+        byteReady    <= 0;
+        valueCounter <= 0;
       end else begin
         case (rxState)
             RX_STATE_IDLE: begin
@@ -111,9 +104,4 @@ module uart
         endcase
       end
     end
-
-    wire _unused_uart = &{byteReady, 1'b0};
-
 endmodule
-
-`default_nettype wire

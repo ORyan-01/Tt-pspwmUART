@@ -1,11 +1,10 @@
-`default_nettype none
-
+`timescale 1ns / 1ps
 
 module signal_generator_0phase #(
   parameter integer Width = 7
 ) (
-  input wire             clk_i,      // Input Clock
-  input wire             rst_ni,     // Active-Low Asynchronous Reset
+  input  wire             clk_i,      // Input Clock
+  input  wire             rst_ni,     // Active-Low Asynchronous Reset
   output reg              trigger_o,  // Trigger Pulse (formerly XADC_Event)
   output reg  [Width-1:0] count_o     // Triangular Wave Output
 );
@@ -52,5 +51,3 @@ module signal_generator_0phase #(
   end
 
 endmodule
-
-`default_nettype wire

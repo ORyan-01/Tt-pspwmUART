@@ -1,24 +1,3 @@
-`default_nettype wire  // codigo generado por HDL Coder: usa nets implicitas
-
-// ---------------------------------------------------------------------------
-// PARCHE PARA TINY TAPEOUT  (no cambia el comportamiento)
-//
-// HDL Coder reutilizo la MISMA variable de bucle en dos procesos con reloj:
-//   xXik_reg_t_0_0  ->  xXik_reg_process   y  xXik_reg_1_process
-//   xUik_reg_t_0_0  ->  xUik_reg_process   y  xUik_reg_1_process
-// Al ser `reg` de modulo asignados dentro de un always @(posedge ...), Yosys
-// infiere un biestable por proceso y acaba con DOS drivers sobre la misma red:
-//   "multiple conflicting drivers for fcc_fixpt.\xUik_reg_t_0_0 [31:0]"
-// Son 32 bits x 2 variables = los 64 errores que abortaron el GDS.
-//
-// Arreglo: los cuatro bucles tienen limites constantes 0..1, asi que se
-// desenrollan a mano y las dos variables desaparecen.  Es exactamente lo que
-// hacen el simulador y el sintetizador al desenrollar: misma logica, mismos
-// biestables de datos, mismo resultado bit a bit.  La variable de bucle no se
-// lee nunca fuera del bucle y se reinicia a 0 en cada ejecucion, asi que el
-// valor que retenia era estado muerto.
-// ---------------------------------------------------------------------------
-
 // -------------------------------------------------------------
 // 
 // File Name: C:\Users\frank\Matlab\PRUEBA_FLOAT_TO_FIXED\codegen\fcc\hdlsrc\fcc_fixpt.v
@@ -59,6 +38,7 @@
 // 
 // -------------------------------------------------------------
 
+`timescale 1 ns / 1 ns
 
 module fcc_fixpt
           (clk,
@@ -225,8 +205,9 @@ module fcc_fixpt
       end
       else begin
         if (enb) begin
-          // Bucle desenrollado a mano (limites constantes 0..1).  Identico al
-          // original; elimina la variable de bucle compartida entre procesos.
+          // MODIFICADO: bucle desenrollado (limites constantes 0..1).
+          // La variable de bucle se compartia entre dos procesos con reloj
+          // y Yosys veia dos drivers sobre la misma red -> 64 errores, GDS abortado.
           xXik[0] <= tmp_5[0];
           xXik[1] <= tmp_5[1];
         end
@@ -274,7 +255,9 @@ module fcc_fixpt
       end
       else begin
         if (enb) begin
-          // Bucle desenrollado a mano (limites constantes 0..1).
+          // MODIFICADO: bucle desenrollado (limites constantes 0..1).
+          // La variable de bucle se compartia entre dos procesos con reloj
+          // y Yosys veia dos drivers sobre la misma red -> 64 errores, GDS abortado.
           xUik_2[0] <= tmp_6[0];
           xUik_2[1] <= tmp_6[1];
         end
@@ -388,7 +371,9 @@ module fcc_fixpt
       end
       else begin
         if (enb) begin
-          // Bucle desenrollado a mano (limites constantes 0..1).
+          // MODIFICADO: bucle desenrollado (limites constantes 0..1).
+          // La variable de bucle se compartia entre dos procesos con reloj
+          // y Yosys veia dos drivers sobre la misma red -> 64 errores, GDS abortado.
           xXik_2[0] <= tmp_12[0];
           xXik_2[1] <= tmp_12[1];
         end
@@ -434,7 +419,9 @@ module fcc_fixpt
       end
       else begin
         if (enb) begin
-          // Bucle desenrollado a mano (limites constantes 0..1).
+          // MODIFICADO: bucle desenrollado (limites constantes 0..1).
+          // La variable de bucle se compartia entre dos procesos con reloj
+          // y Yosys veia dos drivers sobre la misma red -> 64 errores, GDS abortado.
           xUik_5[0] <= tmp_13[0];
           xUik_5[1] <= tmp_13[1];
         end
@@ -499,7 +486,7 @@ module fcc_fixpt
   assign p45y1_add_cast = {2'b0, ui_aux};
   assign p45y1_add_cast_1 = {{12{tmp_14[10]}}, tmp_14};
   assign p45y1_add_temp = p45y1_add_cast + p45y1_add_cast_1;
-  assign y1 = p45y1_add_temp[22:14] + $signed({8'b0, p45y1_add_temp[22] & (|p45y1_add_temp[13:0])});
+  assign y1 = p45y1_add_temp[22:14] + $signed({1'b0, p45y1_add_temp[22] & (|p45y1_add_temp[13:0])});
 
 
 
@@ -510,7 +497,7 @@ module fcc_fixpt
   assign p47y1_sub_cast = {2'b0, ui_aux};
   assign p47y1_sub_cast_1 = {{12{tmp_14[10]}}, tmp_14};
   assign p47y1_sub_temp = p47y1_sub_cast - p47y1_sub_cast_1;
-  assign y1_1 = p47y1_sub_temp[22:14] + $signed({8'b0, p47y1_sub_temp[22] & (|p47y1_sub_temp[13:0])});
+  assign y1_1 = p47y1_sub_temp[22:14] + $signed({1'b0, p47y1_sub_temp[22] & (|p47y1_sub_temp[13:0])});
 
 
 
@@ -528,18 +515,5 @@ module fcc_fixpt
 
   assign uv = tmp_14;
 
-  // ---------------------------------------------------------------------------
-  // Solo para el linter: bits que el codigo generado por HDL Coder calcula
-  // pero luego descarta al hacer el recorte de punto fijo.  No genera logica.
-  // ---------------------------------------------------------------------------
-  wire _unused_fixpt = &{1'b0,
-      tmp_10[20:11], y1[8:7], y1_1[8:7],
-      p35tmp_mul_temp[34], p35tmp_mul_temp_0[33],
-      p35tmp_add_temp[34], p35tmp_add_temp[13:0],
-      p33xUik_sub_cast[17:16], p33xUik_sub_cast_2[17:16],
-      p33xUik_mul_temp[37], p33xUik_cast[36:35], p33xUik_cast[13:0],
-      p17tmp_mul_temp_0[20], p17tmp_add_temp[20], p17tmp_add_temp[13:0],
-      p15xUik_sub_cast[17:16], p15xUik_sub_cast_2[17:16],
-      p15xUik_mul_temp[38], p15xUik_cast[37:25], p15xUik_cast[13:0]};
-
 endmodule  // fcc_fixpt
+

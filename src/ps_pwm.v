@@ -1,12 +1,11 @@
-`default_nettype none
-
+`timescale 1ns / 1ps
 
 module ps_pwm (
-  input wire       clk_i,          // Main System Clock
-  input wire       rst_ni,         // Active-Low Asynchronous Reset
+  input  wire       clk_i,          // Main System Clock
+  input  wire       rst_ni,         // Active-Low Asynchronous Reset
 
-  input wire [6:0] duty_d1_i,      // Duty Cycle 1 (from controller)
-  input wire [6:0] duty_d2_i,      // Duty Cycle 2 (from controller)
+  input  wire [6:0] duty_d1_i,      // Duty Cycle 1 (from controller)
+  input  wire [6:0] duty_d2_i,      // Duty Cycle 2 (from controller)
 
   output wire       adc_trigger_o,  // Trigger for ADC (was XADC_Event)
   output wire [3:0] pwm_o           // PWM Outputs (JE)
@@ -64,7 +63,7 @@ module ps_pwm (
     .DeadTimeWidth (5)
   ) u_dt_gen_1 (
     .clk_i         (clk_i),
-    .rst_ni        (rst_ni),
+    .rst_ni        (rst_ni),   // ANADIDO
     .dt_i          (DeadTime),
     .signal_i      (cmp_out_1),
     .signal_delayed_o (pmos1_delayed)
@@ -79,7 +78,7 @@ module ps_pwm (
     .DeadTimeWidth (5)
   ) u_dt_gen_2 (
     .clk_i         (clk_i),
-    .rst_ni        (rst_ni),
+    .rst_ni        (rst_ni),   // ANADIDO
     .dt_i          (DeadTime),
     .signal_i      (not_cmp_out_1),
     .signal_delayed_o (nmos2_delayed)
@@ -92,7 +91,7 @@ module ps_pwm (
     .DeadTimeWidth (5)
   ) u_dt_gen_3 (
     .clk_i         (clk_i),
-    .rst_ni        (rst_ni),
+    .rst_ni        (rst_ni),   // ANADIDO
     .dt_i          (DeadTime),
     .signal_i      (cmp_out_2),
     .signal_delayed_o (pmos2_delayed)
@@ -107,7 +106,7 @@ module ps_pwm (
     .DeadTimeWidth (5)
   ) u_dt_gen_4 (
     .clk_i         (clk_i),
-    .rst_ni        (rst_ni),
+    .rst_ni        (rst_ni),   // ANADIDO
     .dt_i          (DeadTime),
     .signal_i      (not_cmp_out_2),
     .signal_delayed_o (nmos1_delayed)
@@ -125,5 +124,3 @@ module ps_pwm (
   assign pwm_o[3] = (!rst_ni) ? 1'b0 : nmos2_delayed;
 
 endmodule
-
-`default_nettype wire
