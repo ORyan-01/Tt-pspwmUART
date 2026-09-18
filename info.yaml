@@ -1,21 +1,16 @@
 # Tiny Tapeout project information
 project:
-  title:        "3LFCC Digital Controller"      # Project title
-  author:       "ORyan-01 / PUCV"               # <-- PON AQUI TU NOMBRE
-  discord:      ""                              # <-- TU USUARIO DE DISCORD
+  title:        "3LFCC Digital Controller"
+  author:       "ORyan-01 (PUCV) - port del diseno FPGA de Nicolas Villegas"
+  discord:      "<<<PON_AQUI_TU_USUARIO_DE_DISCORD>>>"
   description:  "Controlador PS-PWM con lazo PI en punto fijo para un convertidor Flying Capacitor de 3 niveles, con doble ADC I2C, UART y display OLED"
   language:     "Verilog"
   clock_hz:     27000000                        # 27 MHz, igual que la Tang Nano 20K
 
-  # 1 tile = 167x108 uM.  El diseno tiene ~1500 biestables + ROM de fuente.
-  # Empieza en 6x2.  Si el GDS action reporta holgura de sobra, prueba 4x2.
-  # Si falla por densidad/congestion, sube a 8x2.
   tiles: "6x2"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
 
   top_module:  "tt_um_pucv_3lfcc"
 
-  # Source files must be in ./src and you must list each source file separately.
-  # Don't forget to also update `PROJECT_SOURCES` in test/Makefile.
   source_files:
     - "project.v"
     - "fcc_core.v"
