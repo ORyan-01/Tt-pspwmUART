@@ -18,9 +18,12 @@ El chip contiene cinco bloques:
    `timer_control` que espera al fin de conversion de **ambos** ADC.
 
 3. **Modulador PS-PWM**: dos portadoras triangulares de 7 bits desfasadas 180 grados,
-   dos comparadores y cuatro generadores de tiempo muerto (4 ciclos de reloj).
-   Produce las cuatro senales de puerta. Con reset activo las salidas quedan en el
-   estado seguro (PMOS apagados, NMOS apagados).
+   dos comparadores y cuatro generadores de tiempo muerto. El parametro `DeadTime`
+   vale 4 y el flanco de subida se retarda 5 ciclos de reloj (185 ns a 27 MHz); el
+   flanco de bajada es inmediato, que es lo que garantiza que el PMOS y el NMOS de
+   una misma rama nunca conduzcan a la vez. Produce las cuatro senales de puerta.
+   Con reset activo las salidas quedan en el estado seguro (PMOS apagados, NMOS
+   apagados).
 
 4. **Referencia por UART**: receptor 115200 8N1. `u`/`d` suben o bajan la referencia,
    `0`-`9` fijan consignas absolutas.
@@ -42,9 +45,11 @@ instante y se fusionan con un AND (el mismo wired-AND que harian sobre una linea
 fisica comun). Los datos siguen separados, que es lo unico que necesitaban los dos
 ADS1115 para no colisionar de direccion.
 
-Ademas: los `$readmemh` de la fuente pasan a ROM embebida, las dos divisiones de
-32/16 bits pasan a un divisor secuencial (mismo resultado exacto, 33 ciclos), y se
-anaden resets a los modulos que en FPGA dependian del valor inicial del bitstream.
+Ademas: el `$readmemh` de la fuente pasa a una ROM embebida con los 1520 bytes
+completos (los 95 glifos ASCII 32-126), las dos divisiones de 32/16 bits pasan a un
+divisor secuencial compartido (mismo resultado entero exacto, 33 ciclos cada una, 66
+en total), y se anaden resets a los modulos que en FPGA dependian del valor inicial
+del bitstream.
 
 ## How to test
 
@@ -53,13 +58,19 @@ Alimenta el chip a 3.3 V y dale un reloj de **27 MHz**.
 1. Pon `ui[1] = 0` (SCL push-pull, como la FPGA) o `ui[1] = 1` si prefieres
    open-drain estricto con pull-ups.
 2. Deja `ui[0]` (UART RX) en alto si no vas a usar la consola.
-3. Suelta el reset. Los pines `uo[0..3]` empiezan a conmutar a la frecuencia de
-   portadora (27 MHz / 254 ~ 106 kHz) y `uo[5]` parpadea a 0.5 Hz: esa es la senal
-   de vida mas rapida de comprobar con un LED.
-4. Con el OLED conectado, tras ~1.1 s de secuencia de reset del panel aparecen las
+3. Suelta el reset. **Ojo con lo que se ve al arrancar:** mientras la referencia
+   valga 0, `uo[2]` y `uo[3]` conmutan a la frecuencia de portadora
+   (27 MHz / 254 ~ 106 kHz) pero `uo[0]` y `uo[1]` se quedan en alto, que es el
+   estado apagado de los PMOS. Es correcto, no es un fallo: con ciclo de trabajo
+   cero los PMOS no llegan a encender. Los cuatro modulan en cuanto se fija una
+   referencia por UART (paso 5).
+4. `uo[5]` parpadea a 0.5 Hz. Esa es la senal de vida mas rapida de comprobar con
+   un LED.
+5. Con el OLED conectado, tras ~1.1 s de secuencia de reset del panel aparecen las
    cuatro filas de telemetria.
-5. Por UART a 115200 8N1, envia `5` y observa como cambia la fila `Vref:` y el ciclo
-   de trabajo de las salidas PWM.
+6. Por UART a 115200 8N1, envia `5` y observa como cambia la fila `Vref:` y el ciclo
+   de trabajo de las cuatro salidas PWM. Los caracteres `0`-`9` fijan consignas
+   absolutas y `u`/`d` la suben o bajan en pasos.
 
 Sin los ADS1115 conectados el chip sigue funcionando: los maestros I2C completan sus
 tramas igual (no hay clock stretching ni dependencia del ACK), las lecturas salen
