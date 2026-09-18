@@ -1,6 +1,3 @@
-# SPDX-FileCopyrightText: © 2025 PUCV
-# SPDX-License-Identifier: Apache-2.0
-#
 # Banco de pruebas del port a Tiny Tapeout del controlador 3LFCC.
 # Original FPGA: github.com/nic0villegasc/LushayLabs-TangNano20K (carpeta 3LFCC)
 #
