@@ -42,13 +42,13 @@
  * COMO USARLO
  *
  *   1. Reloj de 27 MHz y reset.  Con rst_n en bajo las cuatro puertas quedan
- *      en el estado seguro: los dos PMOS apagados (uo[0]=uo[1]=1) y los dos
+ *      en el estado seguro, los dos PMOS apagados (uo[0]=uo[1]=1) y los dos
  *      NMOS apagados (uo[2]=uo[3]=0).
  *   2. ui[2:1] = 00 y se manda por UART:
  *        '0' a '9'  consignas fijas ('0' = 0 %,  '9' = 59 %)
  *        'u' / 'd'  sube o baja unos 2 puntos por pulsacion
  *   3. Si el UART no responde, ui[2:1] = 01 y el duty entra por uio[6:0].
- *      Es el camino de respaldo: no depende de temporizados.
+ *      Es el camino de respaldo, no depende de temporizados.
  *   4. Para probar el balance del condensador flotante, ui[2:1] = 10 y se
  *      desbalancean D1 y D2 a mano.
  *
@@ -106,7 +106,7 @@ module tt_um_pucv_pspwm (
       .counter_o (uart_value)
   );
 
-  // El UART entrega 16 bits; el modulador quiere 7.  Se toman los altos, que
+  // El UART entrega 16 bits, el modulador quiere 7.  Se toman los altos, que
   // es lo mismo que dividir por 512:  '9' -> 38825 >> 9 = 75 de 127 (59 %),
   // y cada pulsacion de 'u' o 'd' mueve unos 3 pasos.
   wire [6:0] duty_uart = uart_value[15:9];
