@@ -2,8 +2,7 @@
 
 Modulador **PS-PWM** (*Phase-Shift PWM*) para un convertidor Flying Capacitor de 3
 niveles. Es el modulador del diseño FPGA de Nicolás Villegas para la Tang Nano 20K
-(`github.com/nic0villegasc/LushayLabs-TangNano20K`, carpeta `3LFCC`), llevado a
-silicio solo, con los dos ciclos de trabajo expuestos a pines.
+(`github.com/nic0villegasc/LushayLabs-TangNano20K`, carpeta `3LFCC`), llevado al chip, con los dos ciclos de trabajo expuestos a pines.
 
 Funciona en **lazo abierto**: no mide ni corrige, genera el PWM que se le pide.
 
