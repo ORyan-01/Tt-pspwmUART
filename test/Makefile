@@ -12,6 +12,7 @@ PROJECT_SOURCES += signal_generator_0phase.v
 PROJECT_SOURCES += signal_generator_180phase.v
 PROJECT_SOURCES += comparator.v
 PROJECT_SOURCES += dead_time_generator.v
+PROJECT_SOURCES += uart.v
 
 ifneq ($(GATES),yes)
 
