@@ -12,6 +12,11 @@ PROJECT_SOURCES += signal_generator_0phase.v
 PROJECT_SOURCES += signal_generator_180phase.v
 PROJECT_SOURCES += comparator.v
 PROJECT_SOURCES += dead_time_generator.v
+
+ifneq ($(GATES),yes)
+
+# RTL simulation:
+SIM_BUILD				= sim_build/rtl
 VERILOG_SOURCES += $(addprefix $(SRC_DIR)/,$(PROJECT_SOURCES))
 
 else
