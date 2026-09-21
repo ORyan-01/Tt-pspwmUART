@@ -1,9 +1,9 @@
 # Tiny Tapeout project information
 project:
   title:        "3LFCC PS-PWM Modulator"
-  author:       "aaaaaa"
-  discord:      "aaaaaa"
-  description:  "Modulador phase-shift PWM con tiempo muerto para un convertidor Flying Capacitor de 3 niveles, con los dos ciclos de trabajo ajustables por pines"
+  author:       "<<<TU_NOMBRE>>> - modulador del diseno FPGA de Nicolas Villegas"
+  discord:      "<<<TU_USUARIO_DE_DISCORD>>>"
+  description:  "Modulador phase-shift PWM con tiempo muerto para un convertidor Flying Capacitor de 3 niveles, con los dos ciclos de trabajo ajustables por pines o por UART"
   language:     "Verilog"
   clock_hz:     27000000                        # 27 MHz
 
@@ -18,6 +18,7 @@ project:
     - "signal_generator_180phase.v"
     - "comparator.v"
     - "dead_time_generator.v"
+    - "uart.v"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 pinout:
@@ -29,7 +30,7 @@ pinout:
   ui[4]: "D1 bit 4"
   ui[5]: "D1 bit 5"
   ui[6]: "D1 bit 6"
-  ui[7]: ""
+  ui[7]: "UART RX (115200 8N1)"
 
   # Outputs
   uo[0]: "PWM0 - puerta PMOS1 (activa a bajo)"
@@ -49,7 +50,7 @@ pinout:
   uio[4]: "D2 bit 4 (entrada)"
   uio[5]: "D2 bit 5 (entrada)"
   uio[6]: "D2 bit 6 (entrada)"
-  uio[7]: ""
+  uio[7]: "Fuente del duty: 0 = pines, 1 = UART"
 
 # Do not change!
 yaml_version: 6
