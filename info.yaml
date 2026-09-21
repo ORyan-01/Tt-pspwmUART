@@ -1,8 +1,8 @@
 # Tiny Tapeout project information
 project:
-  title:        "3LFCC PS-PWM Modulator"
-  author:       "<<<TU_NOMBRE>>> - modulador del diseno FPGA de Nicolas Villegas"
-  discord:      "<<<TU_USUARIO_DE_DISCORD>>>"
+  title:        "aaaaaa"
+  author:       "aaaaaa"
+  discord:      "aaaaaa"
   description:  "Modulador phase-shift PWM con tiempo muerto para un convertidor Flying Capacitor de 3 niveles, con los dos ciclos de trabajo ajustables por pines o por UART"
   language:     "Verilog"
   clock_hz:     27000000                        # 27 MHz
