@@ -1,86 +1,59 @@
 ## How it works
 
-Controlador digital completo para un **convertidor Flying Capacitor de 3 niveles (3LFCC)**.
-Es el port a ASIC del diseno FPGA de Nicolas Villegas para la Tang Nano 20K
-(`github.com/nic0villegasc/LushayLabs-TangNano20K`, carpeta `3LFCC`)
+Modulador **PS-PWM** (*Phase-Shift PWM*) para un convertidor Flying Capacitor de 3
+niveles. Es el modulador del diseño FPGA de Nicolás Villegas para la Tang Nano 20K
+(`github.com/nic0villegasc/LushayLabs-TangNano20K`, carpeta `3LFCC`), llevado a
+silicio solo, con los dos ciclos de trabajo expuestos a pines.
 
-El chip contiene cinco bloques:
+Funciona en **lazo abierto**: no mide ni corrige, genera el PWM que se le pide.
 
-1. **Adquisicion**: dos maestros I2C independientes leen dos ADS1115 (ambos en la
-   direccion `0x49`, por eso hacen falta dos lineas SDA separadas). Uno mide la
-   tension del condensador flotante en modo diferencial, el otro la tension de
-   salida en modo single-ended. Configuracion: PGA +-4.096 V, 860 SPS, conversion
-   continua.
+El chip compara cada ciclo de trabajo contra una portadora triangular de 7 bits. Las
+dos ramas usan dos portadoras **desfasadas 180 grados**, lo que hace que conmuten
+alternadas y reduce el rizado de la salida. La portadora cuenta de 0 a 127 y vuelve,
+con un período de 254 ciclos de reloj: **106 kHz** de frecuencia de conmutación a
+27 MHz.
 
-2. **Lazo de control**: `fcc_fixpt`, un PI en punto fijo generado con MATLAB HDL
-   Coder, que entrega dos ciclos de trabajo de 7 bits (D1, D2). Se dispara con un
-   `timer_control` que espera al fin de conversion de ambos ADC.
+Cada rama tiene un PMOS y un NMOS que trabajan de forma complementaria. Para que nunca
+conduzcan a la vez, cada señal pasa por un generador de **tiempo muerto**: el flanco de
+apagado es inmediato y el de encendido va retrasado **5 ciclos de reloj (185 ns)**. Así
+siempre se apaga uno antes de que se prenda el otro.
 
-3. **Modulador PS-PWM**: dos portadoras triangulares de 7 bits desfasadas 180 grados,
-   dos comparadores y cuatro generadores de tiempo muerto. El parametro `DeadTime`
-   vale 4 y el flanco de subida se retarda 5 ciclos de reloj (185 ns a 27 MHz); el
-   flanco de bajada es inmediato, que es lo que garantiza que el PMOS y el NMOS de
-   una misma rama nunca conduzcan a la vez. Produce las cuatro senales de puerta.
-   Con reset activo las salidas quedan en el estado seguro (PMOS apagados, NMOS
-   apagados).
+Con el reset activo, las cuatro llaves quedan apagadas.
 
-4. **Referencia por UART**: receptor 115200 8N1. `u`/`d` suben o bajan la referencia,
-   `0`-`9` fijan consignas absolutas.
+### Parejas de cada rama
 
-5. **Telemetria en OLED**: driver SPI de un SSD1306 de 128x64 con motor de texto y
-   ROM de fuente. Muestra tension del flying cap, tension de salida, frecuencia de
-   muestreo real (promediada cada segundo) y la referencia de tension.
-
-### Que cambio respecto a la FPGA
-
-Tiny Tapeout ofrece 8 salidas dedicadas mas 8 bidireccionales = 16 pines de salida,
-y el diseno original necesitaba 15 salidas + 2 bidireccionales = 17. Faltaba uno.
-
-La solucion: los dos buses I2C comparten la linea SCL. Los dos maestros I2C son
-maquinas de estado identicas, con el mismo reloj y el mismo reset, y se habilitan en
-el mismo ciclo; dentro de `i2c.v` ninguna transicion depende de SDA, solo del divisor
-de reloj interno. Por tanto `scl_1_o` y `scl_2_o` son bit a bit identicos en todo
-instante y se fusionan con un AND (el mismo wired-AND que harian sobre una linea
-fisica comun). Los datos siguen separados, que es lo unico que necesitaban los dos
-ADS1115 para no colisionar de direccion.
-
-Ademas: el `$readmemh` de la fuente pasa a una ROM embebida con los 1520 bytes
-completos (los 95 glifos ASCII 32-126), las dos divisiones de 32/16 bits pasan a un
-divisor secuencial compartido (mismo resultado entero exacto, 33 ciclos cada una, 66
-en total), y se anaden resets a los modulos que en FPGA dependian del valor inicial
-del bitstream.
+| Rama | PMOS (activo a bajo) | NMOS (activo a alto) |
+|---|---|---|
+| 1 | `uo[0]` | `uo[3]` |
+| 2 | `uo[1]` | `uo[2]` |
 
 ## How to test
 
-Alimenta el chip a 3.3 V y dale un reloj de **27 MHz**.
+1. Reloj de **27 MHz**.
+2. Fijá **D1** en `ui[6:0]` y **D2** en `uio[6:0]`. El valor es el ciclo de trabajo en
+   binario, de 0 a 127:
 
-1. Pon `ui[1] = 0` (SCL push-pull, como la FPGA) o `ui[1] = 1` si se prefiere
-   open-drain estricto con pull-ups.
-2. Deja `ui[0]` (UART RX) en alto si no van a usar la consola.
-3. Suelta el reset. **Ojo con lo que se ve al arrancar:** mientras la referencia
-   valga 0, `uo[2]` y `uo[3]` conmutan a la frecuencia de portadora
-   (27 MHz / 254 ~ 106 kHz) pero `uo[0]` y `uo[1]` se quedan en alto, que es el
-   estado apagado de los PMOS. Es correcto, no es un fallo: con ciclo de trabajo
-   cero los PMOS no llegan a encender. Los cuatro modulan en cuanto se fija una
-   referencia por UART (paso 5).
-4. `uo[5]` parpadea a 0.5 Hz. Esa es la senal de vida mas rapida de comprobar con
-   un LED.
-5. Con el OLED conectado, tras ~1.1 s de secuencia de reset del panel aparecen las
-   cuatro filas de telemetria.
-6. Por UART a 115200 8N1, envia `5` y observa como cambia la fila `Vref:` y el ciclo
-   de trabajo de las cuatro salidas PWM. Los caracteres `0`-`9` fijan consignas
-   absolutas y `u`/`d` la suben o bajan en pasos.
+   | Valor | Ciclo de trabajo |
+   |---|---|
+   | `0000000` | 0 % |
+   | `1000000` | 50 % |
+   | `1111111` | 100 % |
 
-Sin los ADS1115 conectados el chip sigue funcionando: los maestros I2C completan sus
-tramas igual (no hay clock stretching ni dependencia del ACK), las lecturas salen
-todo unos y el lazo trabaja con esos valores.
+3. Soltá el reset. En `uo[0..3]` aparecen las cuatro señales de puerta.
+4. Usá `uo[4]` como disparo del osciloscopio: da un pulso en cada extremo de la
+   portadora.
+5. Para comprobar el tiempo muerto, mirá a la vez `uo[3]` y `uo[0]`: entre que el NMOS2
+   se apaga y el PMOS1 se enciende tiene que haber al menos 185 ns.
+6. Para operación simétrica, D1 = D2. Para desbalancear las ramas a mano, poné valores
+   distintos.
+
+**Ojo con D = 0:** con ciclo de trabajo cero los PMOS no llegan a encender y `uo[0]` y
+`uo[1]` se quedan en alto. Es correcto, no un fallo.
 
 ## External hardware
 
-- 2 x **ADS1115** (ADC I2C 16 bits), ambos en direccion `0x49`.
-  **SCL comun a los dos**; SDA separado por chip. Pull-ups de 4.7 kohm en SDA1,
-  SDA2 y SCL.
-- 1 x **OLED SSD1306 128x64** en modo SPI de 4 hilos (SCLK, SDIN, CS, DC, RES).
-- Adaptador **USB-serie** 3.3 V a 115200 baudios en `ui[0]`.
-- Etapa de potencia del convertidor flying capacitor de 3 niveles con drivers de
-  puerta en `uo[0..3]`.
+- Etapa de potencia de un convertidor Flying Capacitor de 3 niveles, con drivers de
+  puerta en `uo[0..3]`. **Respetar la polaridad:** los PMOS son activos a bajo y los
+  NMOS activos a alto.
+- Interruptores o el RP2040 de la placa de demostración para fijar D1 y D2.
+- Osciloscopio para observar las salidas.
