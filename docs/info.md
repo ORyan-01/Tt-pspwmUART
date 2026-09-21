@@ -3,7 +3,7 @@
 Modulador **PS-PWM** (*Phase-Shift PWM*) para un convertidor Flying Capacitor de 3
 niveles. Es el modulador del diseño FPGA de Nicolás Villegas para la Tang Nano 20K
 (`github.com/nic0villegasc/LushayLabs-TangNano20K`, carpeta `3LFCC`), llevado a
-silicio con los dos ciclos de trabajo expuestos a pines y el receptor UART de Nicolás
+Tiny Tape-Out con los dos ciclos de trabajo expuestos a pines y el receptor UART de Nicolás
 como segunda forma de fijarlos.
 
 Funciona en **lazo abierto**: no mide ni corrige, genera el PWM que se le pide.
@@ -53,7 +53,7 @@ Reloj de **27 MHz**.
    | `1000000` | 50 % |
    | `1111111` | 100 % |
 
-2. Soltá el reset. En `uo[0..3]` aparecen las cuatro señales de puerta.
+2. Suelta el reset. En `uo[0..3]` aparecen las cuatro señales de puerta.
 3. Para operación simétrica, D1 = D2. Para desbalancear las ramas, valores distintos.
 
 ### Modo UART (`uio[7] = 1`)
@@ -61,7 +61,7 @@ Reloj de **27 MHz**.
 `ui[7]` es uno de los pines que alcanza el puente USB-serie de la placa de
 demostración, así que no hace falta adaptador:
 
-1. Enchufá la placa al PC y abrí un terminal a **115200 baudios, 8N1**.
+1. Enchufen la placa al PC y abrí un terminal a **115200 baudios, 8N1**.
 2. Tecleá:
 
    | Tecla | Efecto |
