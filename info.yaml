@@ -1,9 +1,9 @@
 # Tiny Tapeout project information
 project:
   title:        "3LFCC PS-PWM Modulator"
-  author:       "aaaaaaaa"
-  discord:      "aaaaaaaa"
-  description:  "Modulador phase-shift PWM con tiempo muerto para un convertidor Flying Capacitor de 3 niveles, con ciclo de trabajo ajustable por UART o por pines"
+  author:       "<<<TU_NOMBRE>>> - modulador del diseno FPGA de Nicolas Villegas"
+  discord:      "<<<TU_USUARIO_DE_DISCORD>>>"
+  description:  "Modulador phase-shift PWM con tiempo muerto para un convertidor Flying Capacitor de 3 niveles, con los dos ciclos de trabajo ajustables por pines"
   language:     "Verilog"
   clock_hz:     27000000                        # 27 MHz
 
@@ -18,18 +18,17 @@ project:
     - "signal_generator_180phase.v"
     - "comparator.v"
     - "dead_time_generator.v"
-    - "uart.v"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 pinout:
   # Inputs
-  ui[0]: "UART RX (115200 8N1)"
-  ui[1]: "Modo duty, bit 0"
-  ui[2]: "Modo duty, bit 1"
-  ui[3]: ""
-  ui[4]: ""
-  ui[5]: ""
-  ui[6]: ""
+  ui[0]: "D1 bit 0"
+  ui[1]: "D1 bit 1"
+  ui[2]: "D1 bit 2"
+  ui[3]: "D1 bit 3"
+  ui[4]: "D1 bit 4"
+  ui[5]: "D1 bit 5"
+  ui[6]: "D1 bit 6"
   ui[7]: ""
 
   # Outputs
@@ -38,18 +37,18 @@ pinout:
   uo[2]: "PWM2 - puerta NMOS1 (activa a alto)"
   uo[3]: "PWM3 - puerta NMOS2 (activa a alto)"
   uo[4]: "Disparo de fin de rampa de la portadora"
-  uo[5]: "Heartbeat 0.5 Hz"
+  uo[5]: ""
   uo[6]: ""
   uo[7]: ""
 
   # Bidirectional pins
-  uio[0]: "Duty paralelo bit 0 (entrada)"
-  uio[1]: "Duty paralelo bit 1 (entrada)"
-  uio[2]: "Duty paralelo bit 2 (entrada)"
-  uio[3]: "Duty paralelo bit 3 (entrada)"
-  uio[4]: "Duty paralelo bit 4 (entrada)"
-  uio[5]: "Duty paralelo bit 5 (entrada)"
-  uio[6]: "Duty paralelo bit 6 (entrada)"
+  uio[0]: "D2 bit 0 (entrada)"
+  uio[1]: "D2 bit 1 (entrada)"
+  uio[2]: "D2 bit 2 (entrada)"
+  uio[3]: "D2 bit 3 (entrada)"
+  uio[4]: "D2 bit 4 (entrada)"
+  uio[5]: "D2 bit 5 (entrada)"
+  uio[6]: "D2 bit 6 (entrada)"
   uio[7]: ""
 
 # Do not change!
