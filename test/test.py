@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: © 2025 PUCV
+# SPDX-FileCopyrightText: © 2026 PUCV
 # SPDX-License-Identifier: Apache-2.0
 #
 # Pruebas del modulador PS-PWM en 1x1.
